@@ -1,0 +1,200 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: be7ab31d7609456bb2ada09c355586e2
+      template: 'Solis PV by HTTP'
+      name: 'Solis PV by HTTP'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 1a9cb458af384b42a12d8c4300b1509b
+          name: 'Wireless Mode'
+          type: DEPENDENT
+          key: solarpv.device.wirelessmode
+          delay: '0'
+          history: '0'
+          trends: '0'
+          value_type: CHAR
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var cover_wmode = "(.*)"'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: e2339ad3f2c34bf0a0b55fc89f52c8d1
+          name: 'Wireless AP: MAC Address'
+          type: DEPENDENT
+          key: solispv.device.ap.macaddress
+          delay: '0'
+          history: '0'
+          trends: '0'
+          value_type: CHAR
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var cover_ap_mac = "(.*)"'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: 7c3df97186974982ab0eadd6d3765dc5
+          name: 'Firmware version'
+          type: DEPENDENT
+          key: solispv.device.firmware.version
+          delay: '0'
+          trends: '0'
+          value_type: CHAR
+          inventory_link: SOFTWARE
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var cover_ver = "(.*)"'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: 4426e374950f4649a0b7471ea9d72aa9
+          name: 'Device Serial Number'
+          type: DEPENDENT
+          key: solispv.device.serialnumber
+          delay: '0'
+          trends: '0'
+          value_type: CHAR
+          inventory_link: SERIALNO_A
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var cover_mid = "(\d{1,12})"'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: 18b24db086884f6290656c4c21c2e964
+          name: 'Wireless STA: MAC Address'
+          type: DEPENDENT
+          key: solispv.device.sta.macaddress
+          delay: '0'
+          history: '0'
+          trends: '0'
+          value_type: CHAR
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var cover_sta_mac = "(.*)"'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: 571b185ae50f43b5a77f68fd92ae9c17
+          name: 'Current Power'
+          type: DEPENDENT
+          key: solispv.inverter.currentpower
+          delay: '0'
+          trends: 730d
+          value_type: FLOAT
+          units: W
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var webdata_now_p = "([0-9]+)"'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: 3b9415d154f54eb18a05910da60683f9
+          name: 'Inverter Serial Number'
+          type: DEPENDENT
+          key: solispv.inverter.serialnumber
+          delay: '0'
+          trends: '0'
+          value_type: CHAR
+          inventory_link: SERIALNO_B
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var webdata_sn = "(.*) "'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: f536a4f73da14ca28074a6cd91da79b8
+          name: 'Total yield'
+          type: DEPENDENT
+          key: solispv.inverter.totalyield
+          delay: '0'
+          value_type: FLOAT
+          units: Wh
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var webdata_total_e = "(\d{1,8}[\,\.]{1,2}\d{1,2})"'
+                - \1
+            - type: MULTIPLIER
+              parameters:
+                - '1000'
+          master_item:
+            key: solispv.status
+        - uuid: e035f71718f14037ade11f208f628bd3
+          name: 'Yield today'
+          type: DEPENDENT
+          key: solispv.inverter.yieldtoday
+          delay: '0'
+          value_type: FLOAT
+          units: Wh
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var webdata_today_e = "(\d{1,5}[\,\.]{1}\d{1,2})"'
+                - \1
+            - type: MULTIPLIER
+              parameters:
+                - '1000'
+          master_item:
+            key: solispv.status
+        - uuid: 920106fb8d0a486b97dc4016b7dd2901
+          name: 'Remote Server A Status'
+          type: DEPENDENT
+          key: solispv.remoteserver.a.status
+          delay: '0'
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var status_a = "(.*)"'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: c420b296762c4ff19cf627ec21d3f77e
+          name: 'Remote Server B Status'
+          type: DEPENDENT
+          key: solispv.remoteserver.b.status
+          delay: '0'
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'var status_b = "(.*)"'
+                - \1
+          master_item:
+            key: solispv.status
+        - uuid: f0d5b3612e3a4c96837621ae12c82870
+          name: 'Solis PV Status Page'
+          type: HTTP_AGENT
+          key: solispv.status
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          url: 'http://{$SOLARPV.USERNAME}:{$SOLARPV.PASSWORD}@{HOST.CONN}/status.html'
+          tags:
+            - tag: component
+              value: system
+      macros:
+        - macro: '{$SOLARPV.PASSWORD}'
+          value: admin
+        - macro: '{$SOLARPV.USERNAME}'
+          value: admin
+  graphs:
+    - uuid: f141f0cc40cf43d7bcbe5d0f6d780217
+      name: Power
+      graph_items:
+        - color: FFBF00
+          calc_fnc: ALL
+          item:
+            host: 'Solis PV by HTTP'
+            key: solispv.inverter.currentpower
